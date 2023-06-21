@@ -94,6 +94,13 @@ def main():
 	model = SentencePairClassifierDisambiguationLarge(bert_model, freeze_bert=False).train().to(device)
 	model.load_state_dict(torch.load("model.pth"))
 	model.eval()
+	category_labels = []
+	with database.connect("partial.sqlite") as con:
+		cur = con.cursor()
+		cur.execute("SELECT name FROM categories ORDER BY id")
+		for name, in cur.fetchall():
+			category_labels.append(name)
+	print(category_labels)
 	with torch.no_grad():
 		encoded_pair = tokenizer(sent1, None, padding='max_length', truncation=True, max_length=maxlen, return_tensors='pt')
 		token_ids = encoded_pair['input_ids']
@@ -104,10 +111,8 @@ def main():
 		probs = sigmoid(logits)
 		labels = probs.cpu().numpy()[0]
 		scored_labels = []
-		cur.execute("SELECT name FROM categories")
-		category_labels = cur.fetchall()
 		for i in range(labels):
-			scored_labels.append((labels[i], category_labels[i][0]))
+			scored_labels.append((labels[i], category_labels[i]))
 		scored_labels.sort(key=lambda x: x[0], reverse=True)
 		print(scored_labels)
 
