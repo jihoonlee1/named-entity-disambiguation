@@ -90,6 +90,10 @@ def do_train():
 
 
 def main():
+	sent1 = "Chipco is a non listed company that sells chips"
+	model = SentencePairClassifierDisambiguationLarge(bert_model, freeze_bert=False).train().to(device)
+	model.load_state_dict(torch.load("model.pth"))
+	model.eval()
 	with torch.no_grad():
 		encoded_pair = tokenizer(sent1, None, padding='max_length', truncation=True, max_length=maxlen, return_tensors='pt')
 		token_ids = encoded_pair['input_ids']
@@ -103,7 +107,7 @@ def main():
 
 
 if __name__ == "__main__":
-	do_train()
+	main()
 
 
 # model.train()
