@@ -103,7 +103,13 @@ def main():
 		sigmoid = torch.nn.Sigmoid()
 		probs = sigmoid(logits)
 		labels = probs.cpu().numpy()[0]
-		print(labels)
+		scored_labels = []
+		cur.execute("SELECT name FROM categories")
+		category_labels = cur.fetchall()
+		for i in range(labels):
+			scored_labels.append((labels[i], category_labels[i][0]))
+		scored_labels.sort(key=lambda x: x[0], reverse=True)
+		print(scored_labels)
 
 
 if __name__ == "__main__":
