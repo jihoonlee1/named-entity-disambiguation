@@ -79,7 +79,7 @@ def train_loop(dataloader, model, loss_fn, optimizer):
 		print(f"loss: {loss:>7f}  [{current:>5d}/{size/batch_size}]")
 
 
-def main():
+def do_train():
 	model = SentencePairClassifierDisambiguationLarge(bert_model, freeze_bert=False).train().to(device)
 	train_set = CustomDataset(sqlite_file, maxlen, "train")
 	train_loader = DataLoader(train_set, batch_size=batch_size)
@@ -89,8 +89,21 @@ def main():
 	torch.save(model.state_dict(), "model.pth")
 
 
+def main():
+	with torch.no_grad():
+		encoded_pair = tokenizer(sent1, None, padding='max_length', truncation=True, max_length=maxlen, return_tensors='pt')
+		token_ids = encoded_pair['input_ids']
+		attn_masks = encoded_pair['attention_mask']
+		token_type_ids = encoded_pair['token_type_ids']
+		logits = model(token_ids.to(device), attn_masks.to(device), token_type_ids.to(device))
+		sigmoid = torch.nn.Sigmoid()
+		probs = sigmoid(logits)
+		labels = probs.cpu().numpy()[0]
+		print(labels)
+
+
 if __name__ == "__main__":
-	main()
+	do_train()
 
 
 # model.train()
