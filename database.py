@@ -203,16 +203,16 @@ def _insert_link_annotated_text(cur):
 def main():
 	_create()
 	_initialize()
-	# with connect() as con:
-		# cur = con.cursor()
-		# _insert_item(cur)
-		# _insert_item_aliases(cur)
-		# _insert_pages(cur)
-		# _insert_properties(cur)
-		# _insert_property_alias(cur)
-		# _insert_statements(cur)
-		# _insert_link_annotated_text(cur)
-		# con.commit()
+	with connect() as con:
+		cur = con.cursor()
+		_insert_item(cur)
+		_insert_item_aliases(cur)
+		_insert_pages(cur)
+		_insert_properties(cur)
+		_insert_property_alias(cur)
+		_insert_statements(cur)
+		_insert_link_annotated_text(cur)
+		con.commit()
 
 
 if __name__ == "__main__":
